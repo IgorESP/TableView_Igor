@@ -1,0 +1,7 @@
+/* Aplica un borde azul a todo el VBox principal */
+.root {
+    -fx-border-color: blue;      /* Color del borde */
+    -fx-border-width: 3;         /* Grosor del borde */
+    -fx-border-radius: 5;        /* Esquinas redondeadas opcional */
+    -fx-padding: 10;             /* Padding interno */
+}
