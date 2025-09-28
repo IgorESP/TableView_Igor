@@ -1,6 +1,6 @@
-package com.igoresparza.controladores;
+package com.Igoresparza.controladores;
 
-import com.igoresparza.modelo.Persona;
+import com.Igoresparza.modelo.Persona;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,6 +11,7 @@ import javafx.scene.layout.ColumnConstraints;
 import javafx.scene.layout.Priority;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class ControladorVentana {
@@ -91,14 +92,18 @@ public class ControladorVentana {
         Persona p = new Persona(firstName, lastName, birthDate);
         p.setPersonId(nextId++);
 
-        // Validar antes de agregar
-        if (p.isValidPerson(List.of())) {
+        // Validar antes de agregar usando lista mutable
+        List<String> errores = new ArrayList<>();
+        if (p.isValidPerson(errores)) {
             data.add(p);
             firstNameField.clear();
             lastNameField.clear();
             birthDatePicker.setValue(null);
         } else {
-            Alert alert = new Alert(Alert.AlertType.ERROR, "Los datos ingresados no son válidos.");
+            Alert alert = new Alert(Alert.AlertType.ERROR);
+            alert.setTitle("Error");
+            alert.setHeaderText("Datos inválidos");
+            alert.setContentText(String.join("\n", errores));
             alert.showAndWait();
         }
     }

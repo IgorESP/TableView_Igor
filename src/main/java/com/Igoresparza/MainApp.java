@@ -1,4 +1,4 @@
-package com.igoresparza;
+package com.Igoresparza;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -10,17 +10,13 @@ public class MainApp extends Application {
 
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Cargar el FXML
+        // Cargamos el FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("/com/Igoresparza/fxml/tableView.fxml"));
         Parent root = loader.load();
 
-        // Configurar la ventana
+        // Configuramos la ventana principal
         primaryStage.setTitle("Tabla de Personas");
         primaryStage.setScene(new Scene(root, 600, 400));
         primaryStage.show();
-    }
-
-    public static void main(String[] args) {
-        launch(args);
     }
 }
