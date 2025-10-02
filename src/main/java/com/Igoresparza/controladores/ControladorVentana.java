@@ -67,6 +67,17 @@ public class ControladorVentana {
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.setItems(data);
 
+        // --- CARGAR PERSONAS INICIALES ---
+        Persona p1 = new Persona("Xiker", "Garcia", LocalDate.of(2002, 1, 15));
+        p1.setPersonId(nextId++);
+        Persona p2 = new Persona("Ruben", "Luna", LocalDate.of(2005, 5, 20));
+        p2.setPersonId(nextId++);
+        Persona p3 = new Persona("Gaizka", "Rodriguez", LocalDate.of(2001, 12, 3));
+        p3.setPersonId(nextId++);
+
+        data.addAll(p1, p2, p3);
+
+
         // Botón Add
         addButton.setOnAction(e -> agregarPersona());
 
