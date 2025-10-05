@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
  */
 public class Persona {
     /**
-     * Secuencia atómica utilizada para generar identificadores únicos de persona.
+     * Secuencia atómica utilizada para generar los identificadores únicos de persona.
      */
     public static AtomicInteger personSequence = new AtomicInteger(0);
     private int personId;
