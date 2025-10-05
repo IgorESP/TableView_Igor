@@ -1,7 +1,27 @@
 package com.Igoresparza;
 
-public class Lanzador extends MainApp { // ahora hereda Application
+/**
+ * Clase lanzadora principal de la aplicación JavaFX.
+ * Esta clase actúa como el punto de entrada principal para el JAR ejecutable (Main-Class en el MANIFEST),
+ * delegando la ejecución a la clase {@link MainApp} que extiende Application.
+ *
+ * <p>Este patrón es esencial para la correcta inicialización de aplicaciones JavaFX
+ * con Maven y JDKs recientes.</p>
+ *
+ * @author Igor Esparza
+ * @version 1.0
+ * @since 2025-10-04
+ * @see MainApp
+ * @see javafx.application.Application
+ */
+public class Lanzador {
+    /**
+     * Punto de entrada principal para el JAR ejecutable de la aplicación.
+     * Delega la ejecución a la clase principal de JavaFX, {@link MainApp}.
+     *
+     * @param args Argumentos de línea de comandos pasados a la aplicación.
+     */
     public static void main(String[] args) {
-        launch(args); // llama a MainApp.launch
+        MainApp.main(args);
     }
 }

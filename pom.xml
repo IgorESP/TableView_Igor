@@ -10,23 +10,34 @@
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <mainClass>com.Igoresparza.Lanzador</mainClass>
+
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <javafx.version>21.0.5</javafx.version>
+        <!-- Clase principal usada para el JAR final -->
+        <mainClass>com.Igoresparza.Lanzador</mainClass>
     </properties>
 
     <dependencies>
+        <!-- Dependencias de JavaFX actualizadas a la versión 22 -->
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-controls</artifactId>
-            <version>13</version>
+            <version>${javafx.version}</version>
         </dependency>
         <dependency>
             <groupId>org.openjfx</groupId>
             <artifactId>javafx-fxml</artifactId>
-            <version>13</version>
+            <version>${javafx.version}</version>
+        </dependency>
+        <!-- Se recomienda incluir los módulos gráficos si usas Canvas, etc. -->
+        <dependency>
+            <groupId>org.openjfx</groupId>
+            <artifactId>javafx-graphics</artifactId>
+            <version>${javafx.version}</version>
         </dependency>
 
+        <!-- Dependencias de Logging (se mantienen) -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>slf4j-api</artifactId>
@@ -51,38 +62,44 @@
 
     <build>
         <plugins>
+            <!-- Plugin de Compilación actualizado y apuntando a Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.8.0</version>
+                <version>3.13.0</version> <!-- Versión del plugin actualizada -->
                 <configuration>
                     <release>11</release>
                 </configuration>
             </plugin>
 
+            <!-- Plugin de Javadoc actualizado y apuntando a Java 21 -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.6.3</version>
                 <configuration>
-                    <source>17</source>
+                    <source>21</source>
                     <failOnError>false</failOnError>
                 </configuration>
             </plugin>
 
+            <!-- JavaFX Plugin actualizado a la versión 0.0.8 -->
             <plugin>
                 <groupId>org.openjfx</groupId>
                 <artifactId>javafx-maven-plugin</artifactId>
-                <version>0.0.4</version>
+                <version>0.0.8</version>
                 <executions>
                     <execution>
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.Igoresparza.MainApp</mainClass> </configuration>
+                            <!-- Esta clase se usa para la ejecución con 'javafx:run' -->
+                            <mainClass>com.Igoresparza.MainApp</mainClass>
+                        </configuration>
                     </execution>
                 </executions>
             </plugin>
 
+            <!-- Plugin de Dependencias (se mantiene) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -103,6 +120,7 @@
                 </executions>
             </plugin>
 
+            <!-- Plugin de JAR (se mantiene) -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -112,7 +130,9 @@
                         <manifest>
                             <addClasspath>true</addClasspath>
                             <classpathPrefix>libs/</classpathPrefix>
-                            <mainClass>com.Igoresparza.Lanzador</mainClass> </manifest>
+                            <!-- Esta clase se usa en el JAR ejecutable -->
+                            <mainClass>com.Igoresparza.Lanzador</mainClass>
+                        </manifest>
                     </archive>
                 </configuration>
             </plugin>

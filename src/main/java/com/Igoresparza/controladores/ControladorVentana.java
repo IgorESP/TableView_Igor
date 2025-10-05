@@ -14,6 +14,17 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * Controlador de la ventana principal que maneja la lógica de la interfaz de la tabla de personas.
+ * Gestiona la tabla, los campos de entrada, los botones de acción (Añadir, Eliminar, Restaurar)
+ * y la lógica de validación de los datos de la persona.
+ *
+ * @author Igor Esparza
+ * @version 1.0
+ * @since 2025-10-04
+ * @see com.Igoresparza.modelo.Persona
+ * @see javafx.fxml.FXML
+ */
 public class ControladorVentana {
 
     @FXML
@@ -40,10 +51,19 @@ public class ControladorVentana {
     @FXML
     private TableColumn<Persona, LocalDate> birthDateColumn;
 
+    /** Lista observable de personas que se muestran en la tabla. */
     private ObservableList<Persona> data = FXCollections.observableArrayList();
-    private ObservableList<Persona> deletedData = FXCollections.observableArrayList(); // Para restaurar filas eliminadas
+    /** Lista observable para almacenar personas eliminadas, permitiendo la restauración. */
+    private ObservableList<Persona> deletedData = FXCollections.observableArrayList();
+    /** Contador para asignar el siguiente ID de persona. */
     private int nextId = 1;
 
+    /**
+     * Método de inicialización llamado automáticamente por el FXMLLoader después de que
+     * todos los elementos FXML han sido inyectados.
+     * Configura las columnas de la tabla, las fábricas de valores, los listeners de botones
+     * y carga los datos iniciales.
+     */
     @FXML
     public void initialize() {
         // Configurar columnas del GridPane
@@ -78,23 +98,28 @@ public class ControladorVentana {
         data.addAll(p1, p2, p3);
 
 
-        // Botón Add
+        // Botón Add: Listener para agregar una nueva persona
         addButton.setOnAction(e -> agregarPersona());
 
-        // Botón Delete
+        // Botón Delete: Listener para eliminar las filas seleccionadas de la tabla
         deleteButton.setOnAction(e -> {
             ObservableList<Persona> selected = tableView.getSelectionModel().getSelectedItems();
             deletedData.addAll(selected); // Guardar eliminados para restaurar
             data.removeAll(selected);
         });
 
-        // Botón Restore
+        // Botón Restore: Listener para restaurar las personas que fueron eliminadas
         restoreButton.setOnAction(e -> {
             data.addAll(deletedData);
             deletedData.clear();
         });
     }
 
+    /**
+     * Método privado que gestiona la lógica para agregar una nueva persona a la tabla.
+     * Obtiene los datos de los campos de entrada, valida la persona y, si es válida,
+     * la añade a la lista observable y limpia los campos. En caso de error, muestra una alerta.
+     */
     private void agregarPersona() {
         String firstName = firstNameField.getText().trim();
         String lastName = lastNameField.getText().trim();
