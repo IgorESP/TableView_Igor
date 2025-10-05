@@ -7,7 +7,8 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-import javafx.scene.image.Image;
+import javafx.scene.image.Image; // Añadido para manejo de Image
+
 /**
  * Clase principal de la aplicación de gestión de personas.
  * Se encarga de la inicialización del entorno JavaFX, la carga del FXML
@@ -21,9 +22,7 @@ import javafx.scene.image.Image;
  */
 public class MainApp extends Application {
 
-    /**
-     * Logger estático para el registro de eventos y mensajes de la aplicación.
-     */
+    // Logger
     private static final Logger logger = LoggerFactory.getLogger(MainApp.class);
 
     /**
@@ -36,21 +35,36 @@ public class MainApp extends Application {
      */
     @Override
     public void start(Stage primaryStage) throws Exception {
-        // Cargamos el FXML
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/tableView.fxml"));
-        Parent root = loader.load();
-        // 1. Cargar el archivo de imagen
-        Image icon = new Image(getClass().getResourceAsStream("imagenes/imagen_logo.png"));
+        logger.info("Iniciando el método start(Stage).");
 
-        // 2. Establecer el icono en el Stage (ventana principal)
-        primaryStage.getIcons().add(icon);
+        try {
+            logger.debug("Cargando archivo FXML: fxml/tableView.fxml");
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/tableView.fxml"));
+            Parent root = loader.load();
+            logger.info("Vista FXML cargada correctamente.");
 
-        // Configuramos la ventana principal
-        logger.info("Creacion del titulo");
-        logger.warn("Warning");
-        primaryStage.setTitle("Tabla de Personas");
-        primaryStage.setScene(new Scene(root, 600, 400));
-        primaryStage.show();
+            // Lógica del icono
+            try {
+                logger.debug("Intentando cargar el icono de la ventana.");
+                // Asumiendo la ruta corregida del diálogo anterior
+                Image icon = new Image(getClass().getResourceAsStream("imagenes/imagen_logo.png"));
+                primaryStage.getIcons().add(icon);
+                logger.debug("Icono de la ventana establecido.");
+            } catch (Exception e) {
+                // Capturará el NullPointerException si el recurso no existe
+                logger.warn("No se pudo cargar o establecer el icono de la ventana. (Ruta: imagenes/imagen_logo.png)", e);
+            }
+
+            // Configuramos la ventana principal
+            primaryStage.setTitle("Tabla de Personas");
+            primaryStage.setScene(new Scene(root, 600, 400));
+            primaryStage.show();
+            logger.info("Ventana principal mostrada con éxito.");
+
+        } catch (Exception e) {
+            logger.error("Error FATAL durante la inicialización o carga del FXML.", e);
+            throw e; // Relanzar la excepción para que el programa falle visiblemente si no puede arrancar
+        }
     }
 
     /**

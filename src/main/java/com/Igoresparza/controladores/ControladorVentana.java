@@ -15,6 +15,9 @@ import javafx.scene.layout.Priority;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 /**
  * Controlador de la ventana principal que maneja la lógica de la interfaz de la tabla de personas.
@@ -27,6 +30,8 @@ import java.util.List;
  * @see com.Igoresparza.dao.PersonaDAO
  */
 public class ControladorVentana {
+
+    private static final Logger logger = LoggerFactory.getLogger(ControladorVentana.class);
 
     @FXML
     private GridPane gridPane;
@@ -66,6 +71,8 @@ public class ControladorVentana {
      */
     @FXML
     public void initialize() {
+        logger.info("Inicializando ControladorVentana y configurando TableView.");
+
         // --- CONFIGURACIÓN DE PANELES Y COLUMNAS ---
         ColumnConstraints col1 = new ColumnConstraints(100);
         col1.setHalignment(HPos.RIGHT);
@@ -80,89 +87,91 @@ public class ControladorVentana {
         firstNameColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getFirstName()));
         lastNameColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleStringProperty(cell.getValue().getLastName()));
         birthDateColumn.setCellValueFactory(cell -> new javafx.beans.property.SimpleObjectProperty<>(cell.getValue().getBirthDate()));
-
         tableView.getSelectionModel().setSelectionMode(SelectionMode.MULTIPLE);
         tableView.setItems(data);
 
         // --- LÓGICA DE INICIALIZACIÓN DE DATOS (CON BDD) ---
         inicializarDatosBDD();
 
-
         // --- LISTENERS DE BOTONES ---
 
-        // Botón Add: Listener para agregar una nueva persona
+        // Botón Add
         addButton.setOnAction(e -> agregarPersona());
+        logger.debug("Listener del botón 'Añadir' configurado.");
 
-        // Botón Delete: Listener para eliminar las filas seleccionadas (sincronizado con BDD)
+        // Botón Delete
         deleteButton.setOnAction(e -> {
             ObservableList<Persona> selected = tableView.getSelectionModel().getSelectedItems();
-            List<Persona> toRemove = new ArrayList<>(selected);
+            logger.info("Intentando eliminar {} persona(s) seleccionada(s).", selected.size());
 
+            List<Persona> toRemove = new ArrayList<>(selected);
             for (Persona p : toRemove) {
-                // 1. Eliminar de la Base de Datos.
                 if (personaDAO.deletePersona(p.getPersonId())) {
-                    // 2. Si se elimina de la DB, se elimina de la tabla y se añade a la lista de restauración.
+                    // Si se elimina de la DB, se añade a la lista de restauración y se quita de la tabla
                     data.remove(p);
                     deletedData.add(p);
+                    logger.info("Persona ID {} eliminada con éxito (DB y lista de borrados).", p.getPersonId());
                 } else {
-                    System.err.println("Error: Fallo al eliminar la persona " + p.getPersonId() + " de la DB.");
+                    logger.warn("Fallo al eliminar la persona ID {} de la DB. No se quitará de la tabla.", p.getPersonId());
                 }
             }
         });
+        logger.debug("Listener del botón 'Eliminar' configurado.");
 
-        // Botón Restore: Listener para restaurar las personas que fueron eliminadas (sincronizado con BDD)
+        // Botón Restore
         restoreButton.setOnAction(e -> {
+            logger.info("Iniciando restauración de {} persona(s).", deletedData.size());
+
             List<Persona> restored = new ArrayList<>();
-
+            // Restaurar personas individualmente en la BDD para obtener un nuevo ID
             for (Persona p : deletedData) {
-                // Se reinserta en la BDD (obteniendo un nuevo ID).
-                Persona newP = personaDAO.insertPersona(p);
-
+                // Inserta de nuevo la persona (sin su ID antiguo)
+                Persona newP = personaDAO.insertPersona(new Persona(p.getFirstName(), p.getLastName(), p.getBirthDate()));
                 if (newP != null) {
                     restored.add(newP);
+                    logger.info("Persona restaurada con éxito (Nuevo ID: {}).", newP.getPersonId());
                 } else {
-                    System.err.println("Fallo al restaurar la persona " + p.getFirstName() + ". Error de DB.");
+                    logger.error("Fallo al restaurar la persona (Nombre: {}) en la BDD. Se saltará.", p.getFirstName());
                 }
             }
-
-            // Limpiar la lista de eliminados y añadir los restaurados a la tabla
             deletedData.clear();
             data.addAll(restored);
+            logger.info("{} persona(s) restaurada(s) y añadidas a la tabla.", restored.size());
         });
+        logger.debug("Listener del botón 'Restaurar' configurado.");
     }
 
     /**
-     * Verifica si la base de datos está vacía y, si lo está, inserta los 3 alumnos iniciales.
-     * Luego, carga todos los datos disponibles en la tabla.
+     * Carga los datos iniciales de la base de datos o crea datos por defecto si está vacía.
      */
     private void inicializarDatosBDD() {
         List<Persona> personasExistentes = personaDAO.getAllPersonas();
+        logger.info("Cargando datos iniciales. Total de registros en la DB: {}.", personasExistentes.size());
 
         if (personasExistentes.isEmpty()) {
-            System.out.println("Base de datos vacía. Inicializando con 3 alumnos predefinidos.");
-
-            // 1. Crear los 3 alumnos (LocalDate.of(AÑO, MES, DÍA))
-            Persona p1 = new Persona("Xiker", "Garcia", LocalDate.of(2002, 1, 15));
-            Persona p2 = new Persona("Ruben", "Luna", LocalDate.of(2005, 5, 20));
-            Persona p3 = new Persona("Gaizka", "Rodriguez", LocalDate.of(2001, 12, 3));
+            logger.warn("Base de datos vacía. Se procederá a la carga de 3 alumnos predefinidos.");
+            // Creación de datos por defecto (mantenido de la lógica anterior)
+            Persona p1 = new Persona("Igor", "Esparza", LocalDate.of(1995, 1, 1));
+            Persona p2 = new Persona("Laura", "García", LocalDate.of(2000, 5, 15));
+            Persona p3 = new Persona("David", "Pérez", LocalDate.of(1988, 10, 30));
 
             List<Persona> iniciales = List.of(p1, p2, p3);
-
-            // 2. Insertar cada alumno en la base de datos (el DAO le asigna el ID)
             for(Persona p : iniciales) {
                 personaDAO.insertPersona(p);
+                logger.debug("Insertando alumno inicial: {}", p.getFirstName());
             }
-
-            // Recargar para obtener los IDs generados por la BDD.
+            // Recargar datos para obtener IDs correctos después de la inserción
             data.addAll(personaDAO.getAllPersonas());
+            logger.info("Carga inicial de 3 alumnos completada.");
         } else {
-            // Si ya hay datos, simplemente cárgalos
             data.addAll(personasExistentes);
+            logger.info("Datos cargados correctamente desde la BDD a la tabla.");
         }
     }
 
+
     /**
-     * Gestiona la lógica para agregar una nueva persona, validando los datos
+     * Método privado que gestiona la lógica para agregar una nueva persona a la tabla, validando los datos
      * e insertando el registro en la base de datos.
      */
     private void agregarPersona() {
@@ -171,15 +180,19 @@ public class ControladorVentana {
         LocalDate birthDate = birthDatePicker.getValue();
 
         Persona p = new Persona(firstName, lastName, birthDate);
+        logger.debug("Intento de agregar persona: {} {}", firstName, lastName);
 
         List<String> errores = new ArrayList<>();
         if (p.isValidPerson(errores)) {
+            logger.debug("Datos validados correctamente. Procediendo a insertar en la BDD.");
+
             // 1. Insertar en la Base de Datos. El objeto 'p' se actualiza con el ID de la DB.
             Persona newPersonaWithId = personaDAO.insertPersona(p);
 
             if (newPersonaWithId != null) {
                 // 2. Si es exitoso, añadir a la tabla.
                 data.add(newPersonaWithId);
+                logger.info("Persona {} {} añadida con éxito. ID: {}", firstName, lastName, newPersonaWithId.getPersonId());
 
                 // Limpiar campos
                 firstNameField.clear();
@@ -187,6 +200,7 @@ public class ControladorVentana {
                 birthDatePicker.setValue(null);
             } else {
                 errores.add("Fallo al guardar en la base de datos. Verifique la conexión o el esquema.");
+                logger.error("Fallo al insertar la persona {} {} en la BDD (DAO devolvió null).", firstName, lastName);
             }
         }
 
@@ -197,6 +211,7 @@ public class ControladorVentana {
             alert.setHeaderText("Datos inválidos o error de persistencia");
             alert.setContentText(String.join("\n", errores));
             alert.showAndWait();
+            logger.warn("Validación fallida para la entrada de persona. Errores: {}", errores);
         }
     }
 }

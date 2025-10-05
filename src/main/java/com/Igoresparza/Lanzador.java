@@ -1,5 +1,8 @@
 package com.Igoresparza;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 /**
  * Clase lanzadora principal de la aplicación JavaFX.
  * Esta clase actúa como el punto de entrada principal para el JAR ejecutable (Main-Class en el MANIFEST),
@@ -15,6 +18,9 @@ package com.Igoresparza;
  * @see javafx.application.Application
  */
 public class Lanzador {
+
+    private static final Logger logger = LoggerFactory.getLogger(Lanzador.class);
+
     /**
      * Punto de entrada principal para el JAR ejecutable de la aplicación.
      * Delega la ejecución a la clase principal de JavaFX, {@link MainApp}.
@@ -22,6 +28,8 @@ public class Lanzador {
      * @param args Argumentos de línea de comandos pasados a la aplicación.
      */
     public static void main(String[] args) {
+        logger.info("El Lanzador ha comenzado. Delegando el inicio a MainApp.");
         MainApp.main(args);
+        logger.info("Aplicación finalizada o cerrada desde el entorno JavaFX.");
     }
 }

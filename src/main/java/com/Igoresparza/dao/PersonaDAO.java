@@ -6,6 +6,8 @@ import java.sql.*;
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Data Access Object (DAO) para la clase Persona.
@@ -18,6 +20,8 @@ import java.util.List;
  */
 public class PersonaDAO {
 
+    private static final Logger logger = LoggerFactory.getLogger(PersonaDAO.class);
+
     /**
      * Lee todas las personas de la base de datos y las mapea a una lista de objetos Persona.
      *
@@ -26,6 +30,8 @@ public class PersonaDAO {
     public List<Persona> getAllPersonas() {
         List<Persona> personas = new ArrayList<>();
         final String SQL = "SELECT person_id, first_name, last_name, birth_date FROM persona ORDER BY person_id";
+
+        logger.debug("Ejecutando consulta: {}", SQL);
 
         // Usamos try-with-resources para asegurar el cierre automático de recursos (Connection, Statement, ResultSet)
         try (Connection conn = ConexionBBDD.getConnection();
@@ -42,42 +48,51 @@ public class PersonaDAO {
                 p.setPersonId(rs.getInt("person_id"));
                 personas.add(p);
             }
+            logger.info("Consulta exitosa. Se recuperaron {} registros de la tabla 'persona'.", personas.size());
         } catch (SQLException e) {
-            System.err.println("Error al obtener todas las personas: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("ERROR al obtener todas las personas de la BDD.", e);
         }
         return personas;
     }
 
     /**
-     * Inserta una nueva persona en la BDD.
-     * El objeto Persona de entrada se actualiza con el ID generado por la base de datos (AUTO_INCREMENT).
+     * Inserta una nueva persona en la base de datos.
+     * El objeto Persona pasado se actualiza con el ID autogenerado.
      *
      * @param p El objeto Persona a insertar.
-     * @return La persona con su ID actualizado, o null si la inserción falló.
+     * @return El objeto Persona con el ID actualizado si la inserción fue exitosa, o null en caso de error.
      */
     public Persona insertPersona(Persona p) {
         final String SQL = "INSERT INTO persona (first_name, last_name, birth_date) VALUES (?, ?, ?)";
+
+        logger.debug("Intentando insertar nueva persona: {} {}", p.getFirstName(), p.getLastName());
+
         try (Connection conn = ConexionBBDD.getConnection();
-             // CLAVE: Solicitamos a la BDD que devuelva las claves generadas (el ID)
              PreparedStatement pstmt = conn.prepareStatement(SQL, Statement.RETURN_GENERATED_KEYS)) {
 
             pstmt.setString(1, p.getFirstName());
             pstmt.setString(2, p.getLastName());
             pstmt.setObject(3, p.getBirthDate());
 
-            pstmt.executeUpdate();
+            int affectedRows = pstmt.executeUpdate();
+
+            if (affectedRows == 0) {
+                logger.warn("Inserción fallida, 0 filas afectadas para la persona: {}", p.getFirstName());
+                return null;
+            }
 
             // Recuperar el ID asignado por MariaDB
             try (ResultSet rs = pstmt.getGeneratedKeys()) {
                 if (rs.next()) {
-                    p.setPersonId(rs.getInt(1));
+                    int newId = rs.getInt(1);
+                    p.setPersonId(newId);
+                    logger.info("Inserción exitosa. Nueva persona con ID: {}", newId);
                     return p;
                 }
+                logger.error("Fallo al obtener el ID generado después de la inserción.");
             }
         } catch (SQLException e) {
-            System.err.println("Error al insertar persona: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("ERROR al insertar persona {} en la BDD.", p.getFirstName(), e);
         }
         return null;
     }
@@ -90,15 +105,24 @@ public class PersonaDAO {
      */
     public boolean deletePersona(int personId) {
         final String SQL = "DELETE FROM persona WHERE person_id = ?";
+
+        logger.debug("Intentando eliminar persona con ID: {}", personId);
+
         try (Connection conn = ConexionBBDD.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(SQL)) {
 
             pstmt.setInt(1, personId);
             int affectedRows = pstmt.executeUpdate();
-            return affectedRows > 0;
+
+            if (affectedRows > 0) {
+                logger.info("Borrado exitoso. Persona ID {} eliminada de la BDD.", personId);
+                return true;
+            } else {
+                logger.warn("Borrado fallido. Persona ID {} no encontrada en la BDD (0 filas afectadas).", personId);
+                return false;
+            }
         } catch (SQLException e) {
-            System.err.println("Error al eliminar persona: " + e.getMessage());
-            e.printStackTrace();
+            logger.error("ERROR al eliminar persona ID {} de la BDD.", personId, e);
             return false;
         }
     }

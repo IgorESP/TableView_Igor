@@ -5,6 +5,8 @@ import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Clase que representa el modelo de datos para una persona en la aplicación.
@@ -15,6 +17,9 @@ import java.util.concurrent.atomic.AtomicInteger;
  * @since 2025-10-04
  */
 public class Persona {
+
+    private static final Logger logger = LoggerFactory.getLogger(Persona.class);
+
     /**
      * Secuencia atómica utilizada para generar los identificadores únicos de persona.
      */
@@ -36,6 +41,7 @@ public class Persona {
      */
     public Persona() {
         this(null, null, null);
+        logger.debug("Creación de objeto Persona con constructor por defecto (nulls).");
     }
 
     /**
@@ -48,12 +54,18 @@ public class Persona {
         this.firstName = firstName;
         this.lastName = lastName;
         this.birthDate = birthDate;
+        logger.debug("Creación de objeto Persona: {} {}", firstName, lastName);
     }
+
+    // --- Getters y Setters omitidos por brevedad ---
 
     /** Obtiene el ID de la persona. */
     public int getPersonId() { return personId; }
     /** Establece el ID de la persona. */
-    public void setPersonId(int personId) { this.personId = personId; }
+    public void setPersonId(int personId) {
+        this.personId = personId;
+        logger.debug("ID de Persona establecido a {}.", personId);
+    }
 
     /** Obtiene el nombre de la persona. */
     public String getFirstName() { return firstName; }
@@ -70,6 +82,7 @@ public class Persona {
     /** Establece la fecha de nacimiento de la persona. */
     public void setBirthDate(LocalDate birthDate) { this.birthDate = birthDate; }
 
+
     /**
      * Verifica si la fecha de nacimiento proporcionada es válida (no está en el futuro).
      * @param bdate Fecha de nacimiento a validar.
@@ -80,67 +93,75 @@ public class Persona {
     }
 
     /**
-     * Verifica si la fecha de nacimiento proporcionada es válida, añadiendo errores a una lista mutable.
+     * Verifica si la fecha de nacimiento proporcionada es válida (no está en el futuro).
      * @param bdate Fecha de nacimiento a validar.
-     * @param errorList Lista donde se añadirán los mensajes de error.
+     * @param errorList Lista donde se añadirán los mensajes de error de validación.
      * @return true si la fecha es válida o nula, false si está en el futuro.
      */
     public boolean isValidBirthDate(LocalDate bdate, List<String> errorList) {
-        if (bdate == null) return true;
-        if (bdate.isAfter(LocalDate.now())) {
-            errorList.add("Birth date must not be in future.");
+        if (bdate != null && bdate.isAfter(LocalDate.now())) {
+            errorList.add("The birth date cannot be in the future.");
+            logger.warn("Validación fallida: Fecha de nacimiento en el futuro: {}", bdate);
             return false;
         }
         return true;
     }
 
     /**
-     * Verifica si la persona actual es válida (nombre y apellido no vacíos y fecha de nacimiento válida).
-     * @param errorList Lista donde se añadirán los mensajes de error.
+     * Realiza una validación completa de todos los campos de la persona.
+     * @param errorList Lista mutable donde se añadirán los mensajes de error de validación.
      * @return true si la persona es válida, false en caso contrario.
      */
     public boolean isValidPerson(List<String> errorList) {
-        return isValidPerson(this, errorList);
-    }
-
-    /**
-     * Verifica si un objeto Persona dado es válido, añadiendo errores a una lista mutable.
-     * Valida nombre, apellido y fecha de nacimiento.
-     * @param p Objeto Persona a validar.
-     * @param errorList Lista donde se añadirán los mensajes de error.
-     * @return true si la persona es válida, false en caso contrario.
-     */
-    public boolean isValidPerson(Persona p, List<String> errorList) {
+        logger.debug("Iniciando validación de la Persona: {}", this.toString());
         boolean isValid = true;
-        String fn = p.getFirstName();
+
+        // El ID no se valida ya que se asigna en la BDD.
+
+        String fn = this.getFirstName();
         if (fn == null || fn.trim().length() == 0) {
             errorList.add("First name must contain minimum one character.");
             isValid = false;
         }
-        String ln = p.getLastName();
+        String ln = this.getLastName();
         if (ln == null || ln.trim().length() == 0) {
             errorList.add("Last name must contain minimum one character.");
             isValid = false;
         }
-        if (!isValidBirthDate(p.getBirthDate(), errorList)) {
+
+        if (!isValidBirthDate(this.getBirthDate(), errorList)) {
             isValid = false;
+        }
+
+        if (isValid) {
+            logger.debug("Validación de persona completada: Éxito.");
+        } else {
+            logger.warn("Validación de persona completada: FALLO. Errores: {}", errorList);
         }
         return isValid;
     }
 
     /**
-     * Calcula la categoría de edad de la persona basándose en su fecha de nacimiento.
-     * @return La categoría de edad (BABY, CHILD, TEEN, ADULT, SENIOR, UNKNOWN).
+     * Obtiene la clasificación de edad de la persona
+     * (BABY, CHILD, TEEN, ADULT, SENIOR, UNKNOWN).
      */
     public AgeCategory getAgeCategory() {
-        if (birthDate == null) return AgeCategory.UNKNOWN;
+        if (birthDate == null) {
+            logger.debug("Categoría de edad: UNKNOWN (Fecha de nacimiento nula).");
+            return AgeCategory.UNKNOWN;
+        }
         long years = ChronoUnit.YEARS.between(birthDate, LocalDate.now());
-        if (years >= 0 && years < 2) return AgeCategory.BABY;
-        if (years >= 2 && years < 13) return AgeCategory.CHILD;
-        if (years >= 13 && years <= 19) return AgeCategory.TEEN;
-        if (years > 19 && years <= 50) return AgeCategory.ADULT;
-        if (years > 50) return AgeCategory.SENIOR;
-        return AgeCategory.UNKNOWN;
+        AgeCategory category;
+
+        if (years >= 0 && years < 2) category = AgeCategory.BABY;
+        else if (years >= 2 && years < 13) category = AgeCategory.CHILD;
+        else if (years >= 13 && years <= 19) category = AgeCategory.TEEN;
+        else if (years > 19 && years <= 50) category = AgeCategory.ADULT;
+        else if (years > 50) category = AgeCategory.SENIOR;
+        else category = AgeCategory.UNKNOWN;
+
+        logger.debug("Categoría de edad calculada: {} (Edad: {} años).", category, years);
+        return category;
     }
 
     /**
@@ -151,18 +172,25 @@ public class Persona {
     public boolean save(List<String> errorList) {
         boolean isSaved = false;
         if (isValidPerson(errorList)) {
-            System.out.println("Saved " + this.toString());
+            logger.info("Simulación de guardado exitosa para: {}", this.toString());
             isSaved = true;
+        } else {
+            logger.warn("Simulación de guardado fallida debido a errores de validación.");
         }
         return isSaved;
     }
 
     /**
      * Devuelve una representación en cadena de la Persona.
-     * @return Una cadena que contiene el ID, nombre, apellido y fecha de nacimiento.
+     * @return Una cadena que contiene el ID, nombre y apellido.
      */
     @Override
     public String toString() {
-        return "[personId=" + personId + ", firstName=" + firstName + ", lastName=" + lastName + ", birthDate=" + birthDate + "]";
+        return "Persona{" +
+                "personId=" + personId +
+                ", firstName='" + firstName + '\'' +
+                ", lastName='" + lastName + '\'' +
+                ", birthDate=" + birthDate +
+                '}';
     }
 }
