@@ -7,7 +7,7 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
-
+import javafx.scene.image.Image;
 /**
  * Clase principal de la aplicación de gestión de personas.
  * Se encarga de la inicialización del entorno JavaFX, la carga del FXML
@@ -39,6 +39,11 @@ public class MainApp extends Application {
         // Cargamos el FXML
         FXMLLoader loader = new FXMLLoader(getClass().getResource("fxml/tableView.fxml"));
         Parent root = loader.load();
+        // 1. Cargar el archivo de imagen
+        Image icon = new Image(getClass().getResourceAsStream("imagenes/imagen_logo.png"));
+
+        // 2. Establecer el icono en el Stage (ventana principal)
+        primaryStage.getIcons().add(icon);
 
         // Configuramos la ventana principal
         logger.info("Creacion del titulo");
