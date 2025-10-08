@@ -1,13 +1,13 @@
-# 👨‍👩‍👧‍👦 Gestión de Personas con JavaFX y MariaDB
+# 👨‍👩‍👧‍👦 Gestión de Personas con JavaFX y MariaDB (ASÍNCRONO)
 
 ## 🚀 1. Visión General del Proyecto
 
 Este proyecto es una aplicación de escritorio desarrollada con **JavaFX** y gestionada por **Maven** cuyo objetivo principal es la administración de registros de personas.
 
-Utiliza una arquitectura de **capas (MVC + DAO)** para sincronizar la interfaz gráfica (`TableView`) con una base de datos **MariaDB/MySQL**, permitiendo realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar, Restaurar) de manera persistente.
+Utiliza una arquitectura de **capas (MVC + DAO)** para sincronizar la interfaz gráfica (`TableView`) con una base de datos **MariaDB/MySQL**, permitiendo realizar operaciones CRUD (Crear, Leer, Actualizar, Eliminar, Restaurar) de manera **asíncrona** para garantizar una interfaz de usuario fluida.
 
 ### Características Clave
-* **Interfaz de Usuario:** Desarrollada con JavaFX (FXML y `ControladorVentana`).
+* ** Asincronía: Operaciones de BDD gestionadas en hilos de background mediante ExecutorService (DAO) y javafx.concurrent.Task (Controlador), previniendo el bloqueo del hilo principal de JavaFX.
 * **Persistencia:** Utiliza `PersonaDAO` y `ConexionBBDD` para interactuar con MariaDB.
 * **Logging:** Implementación de **SLF4J + Logback** en las 6 clases principales para trazar el flujo de la aplicación y diagnosticar errores.
 * **Internacionalización (i18n):** Preparado para múltiples idiomas mediante Resource Bundles (`.properties`).
