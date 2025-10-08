@@ -1,0 +1,16 @@
+2025-10-08 17:19:15.577 INFO  [main] com.Igoresparza.Lanzador - El Lanzador ha comenzado. Delegando el inicio a MainApp.
+2025-10-08 17:19:16.123 INFO  [JavaFX Application Thread] com.Igoresparza.MainApp - Iniciando el método start(Stage).
+2025-10-08 17:19:16.445 INFO  [JavaFX Application Thread] c.I.controladores.ControladorVentana - Inicializando ControladorVentana y configurando TableView.
+2025-10-08 17:19:16.452 INFO  [JavaFX Application Thread] com.Igoresparza.MainApp - Vista FXML cargada correctamente.
+2025-10-08 17:19:16.453 WARN  [pool-2-thread-1] com.Igoresparza.bbdd.ConexionBBDD - No se encontró el archivo application.properties. Usando valores por defecto (SOLO PARA PRUEBAS).
+2025-10-08 17:19:16.897 INFO  [pool-2-thread-1] com.Igoresparza.bbdd.ConexionBBDD - Conexión a la BDD establecida con éxito.
+2025-10-08 17:19:16.919 INFO  [pool-2-thread-1] com.Igoresparza.dao.PersonaDAO - Consulta exitosa. Se recuperaron 4 registros de la tabla 'persona'.
+2025-10-08 17:19:16.925 INFO  [Thread-3] c.I.controladores.ControladorVentana - Cargando datos iniciales ASÍNCRONAMENTE. Registros: 4.
+2025-10-08 17:19:17.026 INFO  [JavaFX Application Thread] com.Igoresparza.MainApp - Ventana principal mostrada con éxito.
+2025-10-08 17:19:17.046 INFO  [JavaFX Application Thread] c.I.controladores.ControladorVentana - Carga inicial ASÍNCRONA completada. UI actualizada.
+2025-10-08 17:19:21.534 INFO  [JavaFX Application Thread] c.I.controladores.ControladorVentana - Intentando eliminar 1 persona(s) seleccionada(s) ASÍNCRONAMENTE.
+2025-10-08 17:19:21.558 INFO  [pool-2-thread-2] com.Igoresparza.bbdd.ConexionBBDD - Conexión a la BDD establecida con éxito.
+2025-10-08 17:19:21.568 INFO  [pool-2-thread-2] com.Igoresparza.dao.PersonaDAO - Borrado exitoso. Persona ID 27 eliminada de la BDD.
+2025-10-08 17:19:21.569 INFO  [Thread-4] c.I.controladores.ControladorVentana - Persona ID 27 marcada para eliminación exitosa.
+2025-10-08 17:19:21.573 INFO  [JavaFX Application Thread] c.I.controladores.ControladorVentana - Operación de eliminación ASÍNCRONA completada. UI actualizada.
+2025-10-08 17:19:39.576 INFO  [main] com.Igoresparza.Lanzador - Aplicación finalizada o cerrada desde el entorno JavaFX.
